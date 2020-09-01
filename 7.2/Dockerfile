@@ -68,7 +68,7 @@ RUN set -ex; \
         echo 'session.cookie_httponly = 1'; \
         echo 'session.use_strict_mode = 1'; \
     } > $PHP_INI_DIR/conf.d/session-strict.ini; \
-    sed -i 's/127.0.0.1:9000/0.0.0.0:9000/g' /etc/php7/php-fpm.d/www.conf; \
+    sed -i 's/127.0.0.1:9000/0.0.0.0:9000/g' /etc/php7/php-fpm.d/www.conf \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/html 
 
