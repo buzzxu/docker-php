@@ -1,5 +1,7 @@
 FROM php:7.2-fpm
 
+LABEL MAINTAINER buzzxu <downloadxu@163.com>
+
 RUN echo \
     deb http://mirrors.163.com/debian/ buster main non-free contrib \
     deb http://mirrors.163.com/debian/ buster-updates main non-free contrib \
@@ -50,12 +52,6 @@ RUN set -ex; \
     && rm /etc/localtime \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
-    # Clean up
-    && apt-get clean \
-    && apt-get autoremove \
-    && rm -rf /etc/nginx/conf.d/default.conf \
-    && apt-get purge -y --auto-remove $buildDeps \
-    && rm -rf /var/lib/apt/lists/*  \
     && \
     { \
         echo 'opcache.memory_consumption=128'; \
@@ -71,7 +67,13 @@ RUN set -ex; \
     } > $PHP_INI_DIR/conf.d/session-strict.ini; \
     sed -i 's/127.0.0.1:9000/0.0.0.0:9000/g' /etc/php7/php-fpm.d/www.conf \
     && chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/html 
+    && chmod -R 755 /var/www/html \
+    # Clean up
+    && apt-get clean \
+    && apt-get autoremove \
+    && rm -rf /etc/nginx/conf.d/default.conf \
+    && apt-get purge -y --auto-remove $buildDeps \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Asia/Shanghai
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
