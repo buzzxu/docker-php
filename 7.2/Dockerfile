@@ -1,6 +1,4 @@
-FROM php:7.2-fpm-buster
-
-ENV USER_UID=1000
+FROM php:7.2-fpm
 
 RUN echo \
     deb http://mirrors.163.com/debian/ buster main non-free contrib \
@@ -49,6 +47,9 @@ RUN set -ex; \
     && docker-php-ext-install -j$(nproc) gmp bcmath \
     && pecl install redis \
     && docker-php-ext-enable redis \
+    && rm /etc/localtime \
+    && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
+    && echo "Asia/Shanghai" > /etc/timezone \
     # Clean up
     && apt-get clean \
     && apt-get autoremove \
@@ -72,4 +73,9 @@ RUN set -ex; \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/html 
 
+ENV TZ=Asia/Shanghai
+ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
+
 EXPOSE 9000
+
+
