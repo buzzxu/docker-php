@@ -13,7 +13,8 @@ RUN echo \
     deb-src http://mirrors.163.com/debian-security/ buster/updates main non-free contrib \
     > /etc/apt/sources.list
 
-COPY 7.2/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
+COPY conf/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
+COPY conf/php.ini /usr/local/etc/php/php.ini
 
 ENV DEBIAN_FRONTEND noninteractive
 
