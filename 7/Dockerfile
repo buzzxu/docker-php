@@ -1,4 +1,4 @@
-FROM php:7.2-fpm
+FROM php:7-fpm
 
 LABEL MAINTAINER buzzxu <downloadxu@163.com>
 
