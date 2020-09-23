@@ -51,8 +51,8 @@ RUN set -ex; \
     && docker-php-ext-install -j$(nproc) intl \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && docker-php-ext-install -j$(nproc) gmp bcmath \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    && pecl install redis mongodb \
+    && docker-php-ext-enable redis mongodb \
     && rm /etc/localtime \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
@@ -83,8 +83,13 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
+RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && chmod +x composer.phar \
+    && mv composer.phar /usr/bin/composer
+    
+ENV PATH /root/.composer/vendor/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 

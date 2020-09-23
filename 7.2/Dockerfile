@@ -83,8 +83,13 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
+RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && chmod +x composer.phar \
+    && mv composer.phar /usr/bin/composer
+    
+ENV PATH /root/.composer/vendor/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 
