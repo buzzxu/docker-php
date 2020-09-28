@@ -3,8 +3,7 @@ FROM php:7-fpm
 LABEL MAINTAINER buzzxu <downloadxu@163.com>
 
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \
-    PHP_OPCACHE_MEMORY_CONSUMPTION="192" \
-    SWOOLE_VERSION=4.0.3 
+    PHP_OPCACHE_MEMORY_CONSUMPTION="192" 
 
 RUN echo \
     deb http://mirrors.163.com/debian/ buster main non-free contrib \
@@ -42,14 +41,28 @@ RUN set -ex; \
         libonig-dev \
         libgmp-dev \ 
         libzip-dev \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install -j$(nproc) mysqli pdo_mysql pdo opcache bz2 zip \
-    && docker-php-ext-install -j$(nproc) dom xmlrpc xsl \
-    && docker-php-ext-install -j$(nproc) gettext mbstring \
-    && docker-php-ext-install -j$(nproc) iconv \
-    && docker-php-ext-configure intl \ 
-    && docker-php-ext-install -j$(nproc) intl \
+        libssl-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg  \
+    && docker-php-ext-configure bcmath --enable-bcmath \
+    && docker-php-ext-configure pdo_mysql --with-pdo-mysql \
+    && docker-php-ext-configure mysqli --with-mysqli=mysqlnd \
+    && docker-php-ext-configure mbstring --enable-mbstring \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        mysqli  \ 
+        pdo_mysql \ 
+        opcache \ 
+        bz2 \
+        zip \
+        dom \
+        xmlrpc \
+        xsl \
+        gettext \
+        mbstring \
+        intl \
+        iconv \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && docker-php-ext-install -j$(nproc) gmp bcmath \
     && pecl install redis mongodb xdebug msgpack \
@@ -57,6 +70,17 @@ RUN set -ex; \
     && rm /etc/localtime \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
+    && \
+    { \
+        echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_log=\"/tmp/xdebug.log\"" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    } \
     && \
     { \
         echo 'opcache.enable=1'; \
@@ -84,8 +108,8 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/*
 
 # Swoole 扩展安装 开启扩展
-RUN wget https://github.com/swoole/swoole-src/archive/master.tar.gz -O /tmp/swoole.tar.gz \
-    && mkdir -p /tmp/swoole \
+RUN mkdir -p /tmp/swoole \
+    && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
     && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
     && rm /tmp/swoole.tar.gz \
     && ( \

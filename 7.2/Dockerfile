@@ -42,20 +42,43 @@ RUN set -ex; \
         libgmp-dev \ 
         libzip-dev \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql opcache bz2 zip \
-    && docker-php-ext-install -j$(nproc) dom xmlrpc xsl \
-    && docker-php-ext-install -j$(nproc) gettext mbstring \
-    && docker-php-ext-install -j$(nproc) iconv \
-    && docker-php-ext-configure intl \ 
-    && docker-php-ext-install -j$(nproc) intl \
+    && docker-php-ext-configure pdo_mysql --with-pdo-mysql \
+    && docker-php-ext-configure mysqli --with-mysqli=mysqlnd \
+    && docker-php-ext-configure mbstring --enable-mbstring \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        mysqli  \ 
+        pdo_mysql \ 
+        opcache \ 
+        bz2 \
+        zip \
+        dom \
+        xmlrpc \
+        xsl \
+        gettext \
+        mbstring \
+        intl \
+        iconv \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && docker-php-ext-install -j$(nproc) gmp bcmath \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    && pecl install redis mongodb xdebug msgpack \
+    && docker-php-ext-enable redis mongodb xdebug msgpack \
     && rm /etc/localtime \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
+    && \
+    { \
+        echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+        echo "xdebug.remote_log=\"/tmp/xdebug.log\"" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    } \
     && \
     { \
         echo 'opcache.enable=1'; \
@@ -82,6 +105,21 @@ RUN set -ex; \
     && apt-get purge -y --auto-remove $buildDeps \
     && rm -rf /var/lib/apt/lists/*
 
+# Swoole 扩展安装 开启扩展
+RUN mkdir -p /tmp/swoole \
+    && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
+    && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+    && rm /tmp/swoole.tar.gz \
+    && ( \
+        cd /tmp/swoole \
+        && phpize \
+        && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
+        && make -j$(nproc) \
+        && make install \
+    ) \
+    && rm -r /tmp/swoole \
+    && docker-php-ext-enable swoole
+    
 # Install Composer
 RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
     && php composer-setup.php \
