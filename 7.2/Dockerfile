@@ -50,6 +50,7 @@ RUN set -ex; \
     && docker-php-ext-configure zip \
     && docker-php-ext-install -j$(nproc) \
         gd \
+        bcmath \
         mysqli  \ 
         pdo_mysql \ 
         opcache \ 
@@ -63,7 +64,7 @@ RUN set -ex; \
         intl \
         iconv \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
-    && docker-php-ext-install -j$(nproc) gmp bcmath \
+    && docker-php-ext-install -j$(nproc) gmp \
     && pecl install redis mongodb xdebug msgpack \
     && docker-php-ext-enable redis mongodb xdebug msgpack \
     && rm /etc/localtime \
@@ -71,6 +72,7 @@ RUN set -ex; \
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
     { \
+        echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20190902/xdebug.so"; \
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
         echo "xdebug.remote_autostart=0"; \

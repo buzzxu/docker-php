@@ -51,6 +51,7 @@ RUN set -ex; \
     && docker-php-ext-configure zip \
     && docker-php-ext-install -j$(nproc) \
         gd \
+        bcmath \
         mysqli  \ 
         pdo_mysql \ 
         opcache \ 
@@ -64,7 +65,7 @@ RUN set -ex; \
         intl \
         iconv \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
-    && docker-php-ext-install -j$(nproc) gmp bcmath \
+    && docker-php-ext-install -j$(nproc) gmp \
     && pecl install redis mongodb xdebug msgpack \
     && docker-php-ext-enable redis mongodb xdebug msgpack \
     && rm /etc/localtime \
@@ -72,6 +73,7 @@ RUN set -ex; \
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
     { \
+        echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20190902/xdebug.so";\
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
         echo "xdebug.remote_autostart=0"; \
@@ -109,26 +111,26 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/*
 
 # Swoole 扩展安装 开启扩展
-RUN mkdir -p /tmp/swoole \
-    && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
-    && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
-    && rm /tmp/swoole.tar.gz \
-    && ( \
-        cd /tmp/swoole \
-        && phpize \
-        && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
-        && make -j$(nproc) \
-        && make install \
-    ) \
-    && rm -r /tmp/swoole \
-    && docker-php-ext-enable swoole
+# RUN mkdir -p /tmp/swoole \
+#     && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
+#     && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+#     && rm /tmp/swoole.tar.gz \
+#     && ( \
+#         cd /tmp/swoole \
+#         && phpize \
+#         && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
+#         && make -j$(nproc) \
+#         && make install \
+#     ) \
+#     && rm -r /tmp/swoole \
+#     && docker-php-ext-enable swoole
 
-# Install Composer
-RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
-    && php composer-setup.php \
-    && php -r "unlink('composer-setup.php');" \
-    && chmod +x composer.phar \
-    && mv composer.phar /usr/bin/composer
+# # Install Composer
+# RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
+#     && php composer-setup.php \
+#     && php -r "unlink('composer-setup.php');" \
+#     && chmod +x composer.phar \
+#     && mv composer.phar /usr/bin/composer
     
 ENV PATH /root/.composer/vendor/bin:$PATH
 ENV TZ=Asia/Shanghai
