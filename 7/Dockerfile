@@ -71,16 +71,17 @@ RUN set -ex; \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
-    { \
-        echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-        echo "xdebug.remote_log=\"/tmp/xdebug.log\"" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-    } \
+   { \
+        echo "xdebug.remote_enable=1"; \
+        echo "xdebug.idekey=PHPSTORM"; \
+        echo "xdebug.remote_autostart=0"; \
+        echo "xdebug.default_enable=0"; \
+        echo "xdebug.remote_host=host.docker.internal"; \
+        echo "xdebug.remote_port=9001"; \
+        echo "xdebug.remote_connect_back=0"; \
+        echo "xdebug.profiler_enable=0"; \
+        echo "xdebug.remote_log=\"/tmp/xdebug.log\""; \
+    } > $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini; \
     && \
     { \
         echo 'opcache.enable=1'; \
