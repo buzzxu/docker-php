@@ -75,7 +75,8 @@ RUN set -ex; \
     { \
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
-        echo "xdebug.remote_autostart=0"; \
+        echo "xdebug.remote_handler=dbgp"; \
+        echo "xdebug.remote_autostart=1"; \
         echo "xdebug.default_enable=0"; \
         echo "xdebug.remote_host=host.docker.internal"; \
         echo "xdebug.remote_port=9001"; \
