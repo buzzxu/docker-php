@@ -73,7 +73,6 @@ RUN set -ex; \
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
     { \
-        echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20190902/xdebug.so";\
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
         echo "xdebug.remote_autostart=0"; \
