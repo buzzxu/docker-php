@@ -3,7 +3,8 @@ FROM php:7-fpm
 LABEL MAINTAINER buzzxu <downloadxu@163.com>
 
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \
-    PHP_OPCACHE_MEMORY_CONSUMPTION="192"
+    PHP_OPCACHE_MEMORY_CONSUMPTION="192" \
+    SWOOLE_VERSION=4.0.3 
 
 RUN echo \
     deb http://mirrors.163.com/debian/ buster main non-free contrib \
@@ -43,7 +44,7 @@ RUN set -ex; \
         libzip-dev \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql opcache bz2 zip\
+    && docker-php-ext-install -j$(nproc) mysqli pdo_mysql pdo opcache bz2 zip \
     && docker-php-ext-install -j$(nproc) dom xmlrpc xsl \
     && docker-php-ext-install -j$(nproc) gettext mbstring \
     && docker-php-ext-install -j$(nproc) iconv \
@@ -51,8 +52,8 @@ RUN set -ex; \
     && docker-php-ext-install -j$(nproc) intl \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && docker-php-ext-install -j$(nproc) gmp bcmath \
-    && pecl install redis mongodb \
-    && docker-php-ext-enable redis mongodb \
+    && pecl install redis mongodb xdebug msgpack \
+    && docker-php-ext-enable redis mongodb xdebug msgpack \
     && rm /etc/localtime \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
@@ -81,6 +82,21 @@ RUN set -ex; \
     && rm -rf /etc/nginx/conf.d/default.conf \
     && apt-get purge -y --auto-remove $buildDeps \
     && rm -rf /var/lib/apt/lists/*
+
+# Swoole 扩展安装 开启扩展
+RUN wget https://github.com/swoole/swoole-src/archive/master.tar.gz -O /tmp/swoole.tar.gz \
+    && mkdir -p /tmp/swoole \
+    && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+    && rm /tmp/swoole.tar.gz \
+    && ( \
+        cd /tmp/swoole \
+        && phpize \
+        && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
+        && make -j$(nproc) \
+        && make install \
+    ) \
+    && rm -r /tmp/swoole \
+    && docker-php-ext-enable swoole
 
 # Install Composer
 RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
