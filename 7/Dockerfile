@@ -26,6 +26,7 @@ RUN set -ex; \
     savedAptMark="$(apt-mark showmanual)"; \
     \
     apt-get update && apt-get install -yq --no-install-recommends --no-install-suggests \
+        ca-certificates \
         apt-utils \
         libbz2-dev \
         libfreetype6-dev \
@@ -42,6 +43,7 @@ RUN set -ex; \
         libgmp-dev \ 
         libzip-dev \
         libssl-dev \
+    && update-ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg  \
     && docker-php-ext-configure bcmath --enable-bcmath \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql \
