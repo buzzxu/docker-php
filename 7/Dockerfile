@@ -71,7 +71,7 @@ RUN set -ex; \
     && ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
-   { \
+    { \
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
         echo "xdebug.remote_autostart=0"; \
@@ -82,7 +82,7 @@ RUN set -ex; \
         echo "xdebug.profiler_enable=0"; \
         echo "xdebug.remote_log=\"/tmp/xdebug.log\""; \
     } > $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini; \
-    && \
+    \
     { \
         echo 'opcache.enable=1'; \
         echo 'opcache.memory_consumption=${PHP_OPCACHE_MEMORY_CONSUMPTION}'; \
