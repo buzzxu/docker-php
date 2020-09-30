@@ -114,26 +114,26 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/*
 
 # Swoole 扩展安装 开启扩展
-# RUN mkdir -p /tmp/swoole \
-#     && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
-#     && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
-#     && rm /tmp/swoole.tar.gz \
-#     && ( \
-#         cd /tmp/swoole \
-#         && phpize \
-#         && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
-#         && make -j$(nproc) \
-#         && make install \
-#     ) \
-#     && rm -r /tmp/swoole \
-#     && docker-php-ext-enable swoole
+RUN mkdir -p /tmp/swoole \
+    && curl -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/master.tar.gz -L  \
+    && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+    && rm /tmp/swoole.tar.gz \
+    && ( \
+        cd /tmp/swoole \
+        && phpize \
+        && ./configure --enable-async-redis --enable-mysqlnd --enable-openssl --enable-http2 \
+        && make -j$(nproc) \
+        && make install \
+    ) \
+    && rm -r /tmp/swoole \
+    && docker-php-ext-enable swoole
 
-# # Install Composer
-# RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
-#     && php composer-setup.php \
-#     && php -r "unlink('composer-setup.php');" \
-#     && chmod +x composer.phar \
-#     && mv composer.phar /usr/bin/composer
+# Install Composer
+RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && chmod +x composer.phar \
+    && mv composer.phar /usr/bin/composer
     
 ENV PATH /root/.composer/vendor/bin:$PATH
 ENV TZ=Asia/Shanghai
