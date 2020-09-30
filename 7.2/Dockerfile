@@ -74,6 +74,7 @@ RUN set -ex; \
     && echo "Asia/Shanghai" > /etc/timezone \
     && \
     { \
+        echo "zend_extension=xdebug.so"; \
         echo "xdebug.remote_enable=1"; \
         echo "xdebug.idekey=PHPSTORM"; \
         echo "xdebug.remote_handler=dbgp"; \
